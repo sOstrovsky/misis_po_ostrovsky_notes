@@ -4,15 +4,19 @@ services:
     build: ./frontend
     ports:
       - 3000:3000
+    links:
+      - backend
   backend:
     build: ./backend
+    env_file:
+      - backend/.env
     ports:
       - 8000:8000
+    links:
+      - database
   database:
-    image: library/postgres
+    image: postgres:latest
+    env_file:
+      - backend/.env
     ports:
-      - 8001:5432
-networks:
-  default:
-    external:
-      name: notes_network
+      - 5432:5432

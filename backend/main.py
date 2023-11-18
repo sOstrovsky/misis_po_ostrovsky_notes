@@ -11,7 +11,6 @@ if TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
 app = FastAPI()
-app.router.redirect_slashes = False
 
 
 @app.get("/api/notes", response_model=List[_schemas.Note])
@@ -38,7 +37,7 @@ async def create_note(
     return await _services.create_note(note=note, db=db)
 
 
-@app.delete("/api/note/{note_id}/")
+@app.delete("/api/note/{note_id}")
 async def delete_note(
         note_id: int,
         db: _orm.Session = Depends(_services.get_db)
