@@ -5,7 +5,7 @@ import database as _database
 
 
 class Note(_database.Base):
-    __tablename__ = "notes"
+    __tablename__ = _database.tbl_name
     id = _sql.Column(_sql.Integer, primary_key=True, index=True)
     title = _sql.Column(_sql.Text, index=True)
     description = _sql.Column(_sql.Text, index=True)

@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import './App.css';
 import axios, {AxiosResponse} from "axios";
 import {Button, Input, Modal, Select, Table, Typography} from "antd";
@@ -7,7 +7,7 @@ import {DeleteTwoTone, FileTextOutlined, PlusCircleOutlined} from "@ant-design/i
 import {NotesDataType, INote} from "./App.types";
 
 function App() {
-    const [notes, setNotes] = useState<Array<NotesDataType> | null>(null);
+    const [notes, setNotes] = useState<Array<NotesDataType>>([]);
     const [isModalOpen, setIsOpenModal] = useState<boolean>(false);
     const [title, setTitle] = useState<string>('');
     const [description, setDescription] = useState<string>('');
@@ -50,11 +50,11 @@ function App() {
 
     const handleDeleteNote = useCallback((id: number) => {
         Modal.confirm({
-            title: 'Are you sure want to delete this note?',
-            okText: 'Yes',
+            title: 'Вы действительно хотите удалить заметку?',
+            okText: 'Да',
             okType: 'danger',
+            cancelText: 'Отменить',
             onOk: () => {
-                console.log('deleted');
                 axios.delete(`/api/note/${id}`, {
                     headers: {
                         'Access-Control-Allow-Origin': '*',
@@ -118,56 +118,67 @@ function App() {
         },
     ];
 
+    const createNoteBtn = useMemo(
+        () => (
+            <Button className='NewNote-button' onClick={() => setIsOpenModal(true)}>
+                <PlusCircleOutlined/> Добавить заметку
+            </Button>
+        ), []);
+
     return (
         <div className="App">
             <header className="App-header">
                 <Typography.Title level={2} color='#fff'><FileTextOutlined/> Notes App</Typography.Title>
             </header>
-            <div className="App-body">
-                <div className='Button-wrapper'>
-                    <Button className='NewNote-button' onClick={() => setIsOpenModal(true)}>
-                        <PlusCircleOutlined/> Добавить заметку
-                    </Button>
+            {notes.length ? (
+                <div className="App-body">
+                    <div className='Button-wrapper'>
+                        {createNoteBtn}
+                    </div>
+                    <Table pagination={false} columns={columns} dataSource={notes}/>
                 </div>
-                {notes && <Table pagination={false} columns={columns} dataSource={notes}/>}
-                <Modal
-                    title="Создать новую заметку"
-                    open={isModalOpen}
-                    onOk={handleAddNote}
-                    okButtonProps={{
-                        disabled: !title || !description
-                    }}
-                    destroyOnClose={true}
-                    onCancel={() => setIsOpenModal(false)}
-                >
-                    <div>
-                        <Typography.Text>Название:</Typography.Text>
-                        <Input className='Modal-component' placeholder='Введите название заметки' value={title}
-                               onChange={(e) => setTitle(e.target.value)}/>
-                    </div>
-                    <div>
-                        <Typography.Text>Текст заметки:</Typography.Text>
-                        <Input.TextArea rows={4} className='Modal-component' placeholder='Введите текст заметки'
-                                        value={description}
-                                        onChange={(e) => setDescription(e.target.value)}/>
-                    </div>
-                    <div>
-                        <Typography.Text>Приоритет (1-5):</Typography.Text>
-                        <Select
-                            defaultValue={priority}
-                            className='Modal-component'
-                            onChange={(value) => setPriority(+value)}
-                            options={[
-                                {value: 1, label: 1},
-                                {value: 2, label: 2},
-                                {value: 3, label: 3},
-                                {value: 4, label: 4},
-                                {value: 5, label: 5},
-                            ]}
-                        />
-                    </div>
-                </Modal>
-            </div>
+            ) : (
+                <div className="Empty-wrapper">
+                    {createNoteBtn}
+                </div>
+            )}
+            <Modal
+                title="Создать новую заметку"
+                open={isModalOpen}
+                onOk={handleAddNote}
+                okButtonProps={{
+                    disabled: !title || !description
+                }}
+                destroyOnClose={true}
+                onCancel={() => setIsOpenModal(false)}
+            >
+                <div>
+                    <Typography.Text>Название:</Typography.Text>
+                    <Input className='Modal-component' placeholder='Введите название заметки' value={title}
+                           onChange={(e) => setTitle(e.target.value)}/>
+                </div>
+                <div>
+                    <Typography.Text>Текст заметки:</Typography.Text>
+                    <Input.TextArea rows={4} className='Modal-component' placeholder='Введите текст заметки'
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}/>
+                </div>
+                <div>
+                    <Typography.Text>Приоритет (1-5):</Typography.Text>
+                    <Select
+                        defaultValue={priority}
+                        className='Modal-component'
+                        onChange={(value) => setPriority(+value)}
+                        options={[
+                            {value: 1, label: 1},
+                            {value: 2, label: 2},
+                            {value: 3, label: 3},
+                            {value: 4, label: 4},
+                            {value: 5, label: 5},
+                        ]}
+                    />
+                </div>
+            </Modal>
         </div>
     );
 }

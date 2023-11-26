@@ -6,6 +6,7 @@ import sqlalchemy.orm as _orm
 
 import schemas as _schemas
 import services as _services
+# from database import Base, tbl_name, engine
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
@@ -61,3 +62,9 @@ async def update_note(
         raise HTTPException(status_code=404, detail=f"Note with id {note_id} does not exist")
 
     return await _services.update_note(note_data=note_data, note=note, db=db)
+
+
+# if __name__ == '__main__':
+#     Base.metadata.create_all(bind=engine, checkfirst=False)
+#
+# print(Base.metadata.tables.keys())
